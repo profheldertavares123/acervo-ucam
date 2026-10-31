@@ -168,9 +168,30 @@ export async function saveSettings(settings) {
   await setMeta('settings', settings);
 }
 
+export function normalizeEvent(event) {
+  const students = Array.isArray(event.students)
+    ? event.students.filter(Boolean)
+    : String(event.students || '').split(/[\n;,]/).map(name => name.trim()).filter(Boolean);
+  return {
+    ...event,
+    discipline: typeof event.discipline === 'string' ? event.discipline : '',
+    structure: event.structure || 'pratica',
+    students
+  };
+}
+
+function needsEventNormalization(event) {
+  return typeof event.discipline !== 'string'
+    || !event.structure
+    || !Array.isArray(event.students);
+}
+
 export async function loadEvents() {
   const events = await dbGetAll('events');
-  return events.sort((a, b) => `${b.date || ''}T${b.start || ''}`.localeCompare(`${a.date || ''}T${a.start || ''}`));
+  const normalized = events.map(normalizeEvent);
+  const pending = events.filter(needsEventNormalization);
+  for (const event of pending) await dbPut('events', normalizeEvent(event));
+  return normalized.sort((a, b) => `${b.date || ''}T${b.start || ''}`.localeCompare(`${a.date || ''}T${a.start || ''}`));
 }
 
 export async function saveEvent(event) {

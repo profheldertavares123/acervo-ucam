@@ -19,7 +19,8 @@ import {
   sortSigners,
   chunk,
   formatDate as fd,
-  structureLabel
+  structureLabel,
+  parseStudents
 } from './utils.js';
 import { getFileBlob } from './store.js';
 import { renderPdfPages } from './pdf-render.js';
@@ -196,7 +197,7 @@ function eventPage({ event, index, settings, config, code, images }) {
   const shownImages = imageAttachments.slice(0, 4);
   const coordinator = (event.coordinators || []).map(c => `${c.name}${c.course ? ` (${c.course})` : ''}`).join(' · ');
   const professors = (event.professors || []).map(p => p.name).filter(Boolean).join(' · ');
-  const students = (event.students || []).filter(Boolean);
+  const students = Array.isArray(event.students) ? event.students.filter(Boolean) : parseStudents(event.students || '');
   const status = signers.every(s => getSignature(event, s.key)?.status === 'assinado') && signers.length > 0 ? 'Assinaturas concluídas' : `${signers.filter(s => getSignature(event, s.key)?.status === 'assinado').length} de ${signers.length} assinaturas`;
 
   return page(`

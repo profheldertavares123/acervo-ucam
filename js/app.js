@@ -816,6 +816,7 @@ function openEventDetail(eventId) {
   const signers = getEventSigners(event);
   const docs = (event.attachments || []).filter(a => a.kind === 'document');
   const imgs = (event.attachments || []).filter(a => a.kind === 'image');
+  const students = Array.isArray(event.students) ? event.students.filter(Boolean) : parseStudents(event.students || '');
 
   const body = `
     <div class="detail-head">
@@ -845,7 +846,7 @@ function openEventDetail(eventId) {
         <div class="detail-cell"><div class="detail-cell__label">Estrutura da aula</div><div class="detail-cell__value">${escapeHtml(structureLabel(event.structure))}</div></div>
         <div class="detail-cell"><div class="detail-cell__label">Carga horária</div><div class="detail-cell__value">${formatDuration(eventDuration(event))}</div></div>
         <div class="detail-cell"><div class="detail-cell__label">Local do evento</div><div class="detail-cell__value">${escapeHtml(event.location || '—')}</div></div>
-        <div class="detail-cell detail-cell--wide"><div class="detail-cell__label">Alunos participantes${(event.students || []).length ? ` (${event.students.length})` : ''}</div><div class="detail-cell__value">${escapeHtml((event.students || []).join(' · ') || '—')}</div></div>
+        <div class="detail-cell detail-cell--wide"><div class="detail-cell__label">Alunos participantes${students.length ? ` (${students.length})` : ''}</div><div class="detail-cell__value">${escapeHtml(students.join(' · ') || '—')}</div></div>
         <div class="detail-cell detail-cell--wide"><div class="detail-cell__label">Síntese da atividade</div><div class="detail-cell__value">${escapeHtml(event.description || 'Sem descrição registrada.')}</div></div>
       </div>
     </div>
